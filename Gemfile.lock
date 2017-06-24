@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    infopark-user_io (0.0.0)
+    infopark-user_io (0.0.2)
 
 GEM
   remote: https://rubygems.org/

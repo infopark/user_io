@@ -67,12 +67,18 @@ class UserIO
     tell(e, **options, color: :red, bright: true)
   end
 
-  def ask(*text)
+  def ask(*text, default: nil)
+    # TODO implementation error if default not boolean or nil
     tell("-" * 80)
     tell(*text, color: :cyan, bright: true)
     tell("-" * 80)
-    tell("(yes/no) > ", newline: false)
+    default_answer = default ? "yes" : "no" unless default.nil?
+    tell("(yes/no) #{default_answer && "[#{default_answer}] "}>", newline: false)
     until %w(yes no).include?(answer = read_line.strip.downcase)
+      if answer.empty?
+        answer = default_answer
+        break
+      end
       tell("I couldn't understand “#{answer}”.", newline: false, color: :red, bright: true)
       tell(" > ", newline: false)
     end
