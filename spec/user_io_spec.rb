@@ -5,17 +5,21 @@ RSpec.describe ::Infopark::UserIO do
 
   before do
     allow($stdout).to receive(:puts)
+    # for debugging: .and_call_original
     allow($stdout).to receive(:write)
-    allow($stdin).to receive(:gets).and_return("yes\n")
+    # for debugging: .and_call_original
   end
 
   describe "#ask" do
+    before { allow($stdin).to receive(:gets).and_return("yes\n") }
+
     let(:ask_options) { {} }
     let(:question) { "do you want to?" }
 
     subject(:ask) { user_io.ask(*Array(question), **ask_options) }
 
     shared_examples_for "any question" do
+      # TODO
       #it_behaves_like "handling valid answer"
       #it_behaves_like "handling invalid input"
       #it_behaves_like "printing prefix on every line"
@@ -58,6 +62,30 @@ RSpec.describe ::Infopark::UserIO do
 
       context "non boolean" do
         # TODO
+      end
+    end
+  end
+
+  describe "#select" do
+    before { allow($stdin).to receive(:gets).and_return("1\n") }
+
+    let(:description) { "a thing" }
+    let(:items) { [:a, :b, :c] }
+    let(:select_options) { {} }
+
+    subject(:select) { user_io.select(description, items, **select_options) }
+
+    context "with default" do
+      let(:select_options) { {default: :b} }
+
+      it "presents the default's index as default answer" do
+        expect($stdout).to receive(:write).with("Your choice [2] > ")
+        select
+      end
+
+      it "returns the default on empty input" do
+        expect($stdin).to receive(:gets).and_return("\n")
+        expect(select).to eq(:b)
       end
     end
   end

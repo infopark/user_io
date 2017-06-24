@@ -141,11 +141,12 @@ class UserIO
     File.read(filename)
   end
 
-  def select(description, items, item_describer = :to_s)
+  def select(description, items, item_describer: :to_s, default: nil)
     return if items.empty?
 
     describer =
-        if Proc === item_describer
+        case item_describer
+        when Method, Proc
           item_describer
         else
           ->(item) { item.send(item_describer) }
@@ -166,16 +167,22 @@ class UserIO
       tell("#{i + 1}: #{describer.call(item)}", color: :cyan, bright: true)
     end
     tell("-" * 80)
+    default_index = items.index(default)
+    default_selection = "[#{default_index + 1}] " if default_index
     until choice
-      tell("Your choice > ", newline: false)
+      tell("Your choice #{default_selection}> ", newline: false)
       answer = read_line.strip
-      int_answer = answer.to_i
-      if int_answer.to_s != answer
-        tell("Please enter a valid integer.")
-      elsif int_answer < 1 || int_answer > items.size
-        tell("Please enter a number from 1 through #{items.size}.")
+      if answer.empty?
+        choice = default
       else
-        choice = items[int_answer - 1]
+        int_answer = answer.to_i
+        if int_answer.to_s != answer
+          tell("Please enter a valid integer.")
+        elsif int_answer < 1 || int_answer > items.size
+          tell("Please enter a number from 1 through #{items.size}.")
+        else
+          choice = items[int_answer - 1]
+        end
       end
     end
     choice
