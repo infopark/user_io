@@ -5,7 +5,7 @@ Gem::Specification.new do |s|
   s.description = s.summary
   s.authors = ['Tilo Prütz']
   s.email = 'tilo@infopark.de'
-  s.files = `git ls-files`.split('\n')
+  s.files = `git ls-files -z`.split("\0")
   s.license = 'UNLICENSED'
 
   s.add_development_dependency "bundler"
