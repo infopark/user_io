@@ -40,8 +40,15 @@ class UserIO
     attr_reader :label, :user_io
   end
 
-  def initialize(output_prefix = nil)
-    @output_prefix = output_prefix && "[#{output_prefix}] "
+  def initialize(output_prefix: nil)
+    case output_prefix
+    when String
+      @output_prefix = "[#{output_prefix}] "
+    when Proc, Method
+      @output_prefix_proc = ->() { "[#{output_prefix.call}] " }
+    when :timestamp
+      @output_prefix_proc = ->() { "[#{Time.now.strftime("%T.%L")}] " }
+    end
     @line_pending = {}
   end
 
@@ -178,6 +185,10 @@ class UserIO
     sleep 0.1 while background?
   end
 
+  def output_prefix
+    @output_prefix || @output_prefix_proc && @output_prefix_proc.call
+  end
+
   def read_line
     wait_for_foreground if background?
     @line_pending[false] = false
@@ -193,7 +204,7 @@ class UserIO
 
     prefix = false if @line_pending[background?]
 
-    out_line = "#{@output_prefix if prefix}#{line_prefix}#{line}#{line_postfix}#{"\n" if newline}"
+    out_line = "#{output_prefix if prefix}#{line_prefix}#{line}#{line_postfix}#{"\n" if newline}"
     if background?
       @background_lines << out_line
     else
