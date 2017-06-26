@@ -67,6 +67,14 @@ class UserIO
     tell(e, **options, color: :red, bright: true)
   end
 
+  def acknowledge(*text)
+    tell("-" * 80)
+    tell(*text, color: :cyan, bright: true)
+    tell("-" * 80)
+    tell("Please press ENTER to continue.")
+    read_line
+  end
+
   def ask(*text, default: nil)
     # TODO implementation error if default not boolean or nil
     tell("-" * 80)

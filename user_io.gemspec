@@ -1,6 +1,6 @@
 Gem::Specification.new do |s|
   s.name = 'infopark-user_io'
-  s.version = '0.0.2'
+  s.version = '0.0.3'
   s.summary = 'A utility lib to interact with the user on the command line.'
   s.description = s.summary
   s.authors = ['Tilo Prütz']

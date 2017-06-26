@@ -10,6 +10,29 @@ RSpec.describe ::Infopark::UserIO do
     # for debugging: .and_call_original
   end
 
+  describe "#acknowledge" do
+    before { allow($stdin).to receive(:gets).and_return("\n") }
+
+    let(:message) { "Some important statement." }
+
+    subject(:acknowledge) { user_io.acknowledge(message) }
+
+    it "presents the message (colorized)" do
+      expect($stdout).to receive(:write).with("\e[1;36m""Some important statement.""\e[22;39m\n")
+      acknowledge
+    end
+
+    it "asks for pressing “Enter”" do
+      expect($stdout).to receive(:write).with("Please press ENTER to continue.\n")
+      acknowledge
+    end
+
+    it "requests input" do
+      expect($stdin).to receive(:gets).and_return("\n")
+      acknowledge
+    end
+  end
+
   describe "#ask" do
     before { allow($stdin).to receive(:gets).and_return("yes\n") }
 
