@@ -244,11 +244,17 @@ class UserIO
     control_sequence(*parameters, :m)
   end
 
-  def text_color(color: nil, bright: nil)
+  def text_color(color: nil, bright: nil, faint: nil, italic: nil, underline: nil)
     return if color.nil? && bright.nil?
     sequence = []
-    unless bright.nil?
-      sequence << (bright ? 1 : 22)
+    unless bright.nil? && faint.nil?
+      sequence << (bright ? 1 : (faint ? 2 : 22))
+    end
+    unless italic.nil?
+      sequence << (italic ? 3 : 23)
+    end
+    unless underline.nil?
+      sequence << (underline ? 4 : 24)
     end
     case color
     when :red
