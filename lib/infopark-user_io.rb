@@ -93,9 +93,9 @@ class UserIO
     answer == "yes"
   end
 
-  def listen(prompt = nil)
+  def listen(prompt = nil, **options)
     prompt << " " if prompt
-    tell("#{prompt}> ", newline: false)
+    tell("#{prompt}> ", **options, newline: false)
     read_line.strip
   end
 
