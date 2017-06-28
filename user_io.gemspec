@@ -1,6 +1,8 @@
+require_relative 'lib/infopark/user_io/version'
+
 Gem::Specification.new do |s|
   s.name = 'infopark-user_io'
-  s.version = '0.0.5'
+  s.version = Infopark::UserIO::VERSION
   s.summary = 'A utility lib to interact with the user on the command line.'
   s.description = s.summary
   s.authors = ['Tilo Prütz']
