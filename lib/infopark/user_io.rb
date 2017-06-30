@@ -83,7 +83,7 @@ class UserIO
     tell(*text, color: :cyan, bright: true)
     tell("-" * 80)
     default_answer = default ? "yes" : "no" unless default.nil?
-    tell("(yes/no) #{default_answer && "[#{default_answer}] "}>", newline: false)
+    tell("(yes/no) #{default_answer && "[#{default_answer}] "}> ", newline: false)
     until %w(yes no).include?(answer = read_line.strip.downcase)
       if answer.empty?
         answer = default_answer

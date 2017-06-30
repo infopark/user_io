@@ -55,7 +55,7 @@ RSpec.describe ::Infopark::UserIO do
         let(:default_value) { true }
 
         it "presents default answer “yes”" do
-          expect($stdout).to receive(:write).with("(yes/no) [yes] >")
+          expect($stdout).to receive(:write).with("(yes/no) [yes] > ")
           ask
         end
 
@@ -71,7 +71,7 @@ RSpec.describe ::Infopark::UserIO do
         let(:default_value) { false }
 
         it "presents default answer “no”" do
-          expect($stdout).to receive(:write).with("(yes/no) [no] >")
+          expect($stdout).to receive(:write).with("(yes/no) [no] > ")
           ask
         end
 
