@@ -42,6 +42,10 @@ class UserIO
     attr_reader :label, :user_io
   end
 
+  class << self
+    attr_accessor :global
+  end
+
   def initialize(output_prefix: nil)
     case output_prefix
     when String

@@ -10,6 +10,24 @@ RSpec.describe ::Infopark::UserIO do
     # for debugging: .and_call_original
   end
 
+  describe ".global" do
+    subject(:global) { ::Infopark::UserIO.global }
+
+    it { is_expected.to be_nil }
+  end
+
+  describe ".global=" do
+    subject(:assign_global) { ::Infopark::UserIO.global = user_io }
+
+    it "assigns the global UserIO" do
+      expect {
+        assign_global
+      }.to change {
+        ::Infopark::UserIO.global
+      }.to(user_io)
+    end
+  end
+
   describe "#acknowledge" do
     before { allow($stdin).to receive(:gets).and_return("\n") }
 
