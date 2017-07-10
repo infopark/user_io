@@ -285,3 +285,5 @@ class UserIO
 end
 
 end
+
+require_relative 'user_io/global'
