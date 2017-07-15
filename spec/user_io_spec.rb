@@ -130,4 +130,224 @@ RSpec.describe ::Infopark::UserIO do
       end
     end
   end
+
+  describe "#tell_pty_stream" do
+    let(:color_options) { {} }
+    let(:stream) { instance_double(IO) }
+    let(:data) { "test data" }
+
+    subject(:tell) { user_io.tell_pty_stream(stream, **color_options) }
+
+    before do
+      chunks = Array(data)
+      allow(stream).to receive(:eof?).and_return(*[false] * chunks.size, true)
+      allow(stream).to receive(:read_nonblock).and_return(*chunks)
+      RSpec::Mocks.space.proxy_for($stdout).reset
+      allow($stdout).to receive(:write).with(nil)
+    end
+
+    it "tells all data from stream in non blocking chunks" do
+      expect(stream).to receive(:eof?).and_return(false, false, false, true)
+      expect(stream).to receive(:read_nonblock).with(100).
+          and_return("first\nchunk", "second chunk", "\nlast chunk")
+      expect($stdout).to receive(:write).with("first\nchunk")
+      expect($stdout).to receive(:write).with("second chunk")
+      expect($stdout).to receive(:write).with("\nlast chunk")
+      tell
+    end
+
+    context "with color" do
+      let(:color_options) { {color: :yellow} }
+
+      it "colorizes the output" do
+        expect($stdout).to receive(:write).with("\e[33m").ordered
+        expect($stdout).to receive(:write).with("test data").ordered
+        expect($stdout).to receive(:write).with("\e[22;39m").ordered
+        tell
+      end
+    end
+
+    context "with output_prefix" do
+      let(:options) { {output_prefix: "the prefix"} }
+
+      it "prefixes the output" do
+        expect($stdout).to receive(:write).with("[the prefix] ").ordered
+        expect($stdout).to receive(:write).with("test data").ordered
+        tell
+      end
+
+      context "with color" do
+        let(:color_options) { {color: :yellow} }
+
+        it "does not colorize the prefix" do
+          expect($stdout).to receive(:write).with("[the prefix] ").ordered
+          expect($stdout).to receive(:write).with("\e[33m").ordered
+          expect($stdout).to receive(:write).with("test data").ordered
+          expect($stdout).to receive(:write).with("\e[22;39m").ordered
+          tell
+        end
+      end
+
+      context "when stream contains carriage return" do
+        let(:data) { "some\rdata\rwith\rCRs" }
+
+        it "writes the prefix right after the CR" do
+          expect($stdout).to receive(:write).with("[the prefix] ").ordered
+          expect($stdout).to receive(:write).
+              with("some\r[the prefix] data\r[the prefix] with\r[the prefix] CRs").ordered
+          tell
+        end
+
+        context "with color" do
+          let(:color_options) { {color: :yellow} }
+
+          it "uncolorizes the prefix" do
+            expect($stdout).to receive(:write).with("[the prefix] ").ordered
+            expect($stdout).to receive(:write).with("\e[33m").ordered
+            expect($stdout).to receive(:write).with(
+              "some\r"\
+              "\e[22;39m" "[the prefix] " "\e[33m" "data\r"\
+              "\e[22;39m" "[the prefix] " "\e[33m" "with\r"\
+              "\e[22;39m" "[the prefix] " "\e[33m" "CRs"
+            ).ordered
+            expect($stdout).to receive(:write).with("\e[22;39m").ordered
+            tell
+          end
+        end
+      end
+
+      context "when stream contains newline" do
+        let(:data) { "some\ndata\nwith\nNLs" }
+
+        it "writes the prefix right after the NL" do
+          expect($stdout).to receive(:write).with("[the prefix] ").ordered
+          expect($stdout).to receive(:write).
+              with("some\n[the prefix] data\n[the prefix] with\n[the prefix] NLs")
+          tell
+        end
+
+        context "with color" do
+          let(:color_options) { {color: :yellow} }
+
+          it "uncolorizes the prefix" do
+            expect($stdout).to receive(:write).with("[the prefix] ").ordered
+            expect($stdout).to receive(:write).with("\e[33m").ordered
+            expect($stdout).to receive(:write).with(
+              "some\n"\
+              "\e[22;39m" "[the prefix] " "\e[33m" "data\n"\
+              "\e[22;39m" "[the prefix] " "\e[33m" "with\n"\
+              "\e[22;39m" "[the prefix] " "\e[33m" "NLs"
+            ).ordered
+            expect($stdout).to receive(:write).with("\e[22;39m").ordered
+            tell
+          end
+        end
+
+        context "when stream ends with newline" do
+          # includes an empty chunk to verify, that they don't consume the pending NL
+          let(:data) { ["some\n", "data\n", "with\n", "", "NLs\n", ""] }
+
+          it "does not write prefix after the last newline" do
+            expect($stdout).to receive(:write).with("[the prefix] ").ordered
+            expect($stdout).to receive(:write).with("some").ordered
+            expect($stdout).to receive(:write).with("\n" "[the prefix] ").ordered
+            expect($stdout).to receive(:write).with("data").ordered
+            expect($stdout).to receive(:write).with("\n" "[the prefix] ").ordered
+            expect($stdout).to receive(:write).with("with").ordered
+            expect($stdout).to receive(:write).with("\n" "[the prefix] ").ordered
+            expect($stdout).to receive(:write).with("NLs").ordered
+            expect($stdout).to receive(:write).with("\n").ordered
+            tell
+          end
+
+          context "with color" do
+            let(:color_options) { {color: :yellow} }
+
+            it "uncolorizes the prefix" do
+              expect($stdout).to receive(:write).with("[the prefix] ").ordered
+              expect($stdout).to receive(:write).with("\e[33m").ordered
+              expect($stdout).to receive(:write).with("some").ordered
+              expect($stdout).to receive(:write).
+                  with("\n" "\e[22;39m" "[the prefix] " "\e[33m").ordered
+              expect($stdout).to receive(:write).with("data").ordered
+              expect($stdout).to receive(:write).
+                  with("\n" "\e[22;39m" "[the prefix] " "\e[33m").ordered
+              expect($stdout).to receive(:write).with("with").ordered
+              expect($stdout).to receive(:write).
+                  with("\n" "\e[22;39m" "[the prefix] " "\e[33m").ordered
+              expect($stdout).to receive(:write).with("NLs").ordered
+              expect($stdout).to receive(:write).with("\n").ordered
+              expect($stdout).to receive(:write).with("\e[22;39m").ordered
+              tell
+            end
+          end
+        end
+      end
+
+      context "when data does not end with newline" do
+        let(:data) { "foo" }
+
+        it "writes prefix on next output nevertheless" do
+          expect($stdout).to receive(:write).with("[the prefix] ").ordered
+          expect($stdout).to receive(:write).with("foo").ordered
+          tell
+          expect($stdout).to receive(:write).with("[the prefix] next\n")
+          user_io.tell("next")
+        end
+      end
+
+      context "when no newline was printed before" do
+        before do
+          expect($stdout).to receive(:write).with("[the prefix] no newline").ordered
+          user_io.tell("no newline", newline: false)
+        end
+
+        it "does not prepend prefix" do
+          expect($stdout).to receive(:write).with("test data").ordered
+          tell
+        end
+
+        it "prints prefix on following output" do
+          expect($stdout).to receive(:write).with("test data").ordered
+          tell
+          expect($stdout).to receive(:write).with("[the prefix] next\n")
+          user_io.tell("next")
+        end
+      end
+    end
+
+    context "when in background" do
+      let(:color_options) { {color: :yellow} }
+      let(:options) { {output_prefix: "foo"} }
+      let(:data) { ["data\n", "in\nchunks", "", "yo\n", ""] }
+
+      let!(:foreground_thread) do
+        @finished = false
+        Thread.new do
+          user_io.background_other_threads
+          sleep 0.1 until @finished
+          user_io.foreground
+        end
+      end
+
+      after { foreground_thread.kill.join }
+
+      it "holds back the output until coming back to foreground" do
+        expect($stdout).to_not receive(:write)
+        tell
+        RSpec::Mocks.space.proxy_for($stdout).reset
+        expect($stdout).to receive(:write).with("[foo] ").ordered
+        expect($stdout).to receive(:write).with("\e[33m").ordered
+        expect($stdout).to receive(:write).with("data").ordered
+        expect($stdout).to receive(:write).with("\n" "\e[22;39m" "[foo] " "\e[33m").ordered
+        expect($stdout).to receive(:write).
+            with("in\n" "\e[22;39m" "[foo] " "\e[33m" "chunks").ordered
+        expect($stdout).to receive(:write).with("yo").ordered
+        expect($stdout).to receive(:write).with("\n").ordered
+        expect($stdout).to receive(:write).with("\e[22;39m").ordered
+        @finished = true
+        foreground_thread.join
+      end
+    end
+  end
 end

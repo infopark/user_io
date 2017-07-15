@@ -65,6 +65,25 @@ class UserIO
     tell_line(lines.last, newline: newline, **line_options)
   end
 
+  def tell_pty_stream(stream, **color_options)
+    color_prefix, color_postfix = compute_color(**color_options)
+    write_raw(output_prefix) unless line_pending?
+    write_raw(color_prefix)
+    nl_pending = false
+    uncolored_prefix = "#{color_postfix}#{output_prefix}#{color_prefix}"
+    until stream.eof?
+      chunk = stream.read_nonblock(100)
+      next if chunk.empty?
+      write_raw("\n#{uncolored_prefix}") if nl_pending
+      chunk.chop! if nl_pending = chunk.end_with?("\n")
+      chunk.gsub!(/([\r\n])/, "\\1#{uncolored_prefix}")
+      write_raw(chunk)
+    end
+    write_raw("\n") if nl_pending
+    write_raw(color_postfix)
+    line_pending!(false)
+  end
+
   def warn(*text)
     tell(*text, color: :yellow, bright: true)
   end
@@ -119,14 +138,14 @@ class UserIO
 
   def background_other_threads
     unless @foreground_thread
-      @background_lines = []
+      @background_data = []
       @foreground_thread = Thread.current
     end
   end
 
   def foreground
     if @foreground_thread
-      @background_lines.each(&STDOUT.method(:write))
+      @background_data.each(&STDOUT.method(:write))
       @foreground_thread = nil
       # take over line_pending from background
       @line_pending[false] = @line_pending[true]
@@ -223,22 +242,39 @@ class UserIO
   end
 
   def tell_line(line, newline: true, prefix: true, **color_options)
-    if tty?
-      if line_prefix = text_color(**color_options)
-        line_postfix = text_color(color: :none, bright: false)
-      end
-    end
-
-    prefix = false if @line_pending[background?]
+    line_prefix, line_postfix = compute_color(**color_options)
+    prefix = false if line_pending?
 
     out_line = "#{output_prefix if prefix}#{line_prefix}#{line}#{line_postfix}#{"\n" if newline}"
-    if background?
-      @background_lines << out_line
-    else
-      STDOUT.write(out_line)
-    end
+    write_raw(out_line)
 
-    @line_pending[background?] = !newline
+    line_pending!(!newline)
+  end
+
+  def write_raw(bytes)
+    if background?
+      @background_data << bytes
+    else
+      STDOUT.write(bytes)
+    end
+  end
+
+  def line_pending?
+    @line_pending[background?]
+  end
+
+  def line_pending!(value)
+    @line_pending[background?] = value
+  end
+
+  def compute_color(**options)
+    if tty?
+      if prefix = text_color(**options)
+        # TODO matching annihilators for options
+        postfix = text_color(color: :none, bright: false)
+      end
+    end
+    [prefix, postfix]
   end
 
   def control_sequence(*parameters, function)
