@@ -1,7 +1,9 @@
-RSpec.describe ::Infopark::UserIO do
+module Infopark
+
+RSpec.describe UserIO do
   let(:options) { {} }
 
-  subject(:user_io) { ::Infopark::UserIO.new(**options) }
+  subject(:user_io) { UserIO.new(**options) }
 
   before do
     allow($stdout).to receive(:puts)
@@ -11,19 +13,19 @@ RSpec.describe ::Infopark::UserIO do
   end
 
   describe ".global" do
-    subject(:global) { ::Infopark::UserIO.global }
+    subject(:global) { UserIO.global }
 
     it { is_expected.to be_nil }
   end
 
   describe ".global=" do
-    subject(:assign_global) { ::Infopark::UserIO.global = user_io }
+    subject(:assign_global) { UserIO.global = user_io }
 
     it "assigns the global UserIO" do
       expect {
         assign_global
       }.to change {
-        ::Infopark::UserIO.global
+        UserIO.global
       }.to(user_io)
     end
   end
@@ -127,6 +129,39 @@ RSpec.describe ::Infopark::UserIO do
       it "returns the default on empty input" do
         expect($stdin).to receive(:gets).and_return("\n")
         expect(select).to eq(:b)
+      end
+    end
+  end
+
+  describe "#tell_error" do
+    let(:error) { {my: :error} }
+    let(:tell_options) { {} }
+
+    subject(:tell_error) { user_io.tell_error(error, **tell_options) }
+
+    it "tells the given thing in bright red" do
+      expect(user_io).to receive(:tell).with(error, color: :red, bright: true)
+      tell_error
+    end
+
+    context "with options" do
+      let(:tell_options) { {newline: false} }
+
+      it "delegates them to #tell" do
+        expect(user_io).to receive(:tell).with(error, newline: false, color: :red, bright: true)
+        tell_error
+      end
+    end
+
+    context "when error is a kind of an exception" do
+      let(:error) { UserIO::Aborted.new }
+
+      before { allow(error).to receive(:backtrace).and_return(%w(a b c)) }
+
+      it "tells the error and the whole backtrace" do
+        expect(user_io).to receive(:tell).with(error, color: :red, bright: true)
+        expect(user_io).to receive(:tell).with(%w(a b c), color: :red)
+        tell_error
       end
     end
   end
@@ -350,4 +385,6 @@ RSpec.describe ::Infopark::UserIO do
       end
     end
   end
+end
+
 end

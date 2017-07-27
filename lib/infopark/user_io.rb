@@ -90,6 +90,7 @@ class UserIO
 
   def tell_error(e, **options)
     tell(e, **options, color: :red, bright: true)
+    tell(e.backtrace, **options, color: :red) if Exception === e
   end
 
   def acknowledge(*text)
