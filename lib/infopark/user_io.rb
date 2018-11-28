@@ -16,30 +16,44 @@ class UserIO
     def initialize(label, user_io)
       @label = label
       @user_io = user_io
+      @spinner = "-\\|/"
     end
 
     def start
       unless @started
         user_io.tell("#{label} ", newline: false)
         @started = true
+        reset_spinner
       end
     end
 
     def increment
       raise ImplementationError, "progress not started yet" unless @started
       user_io.tell(".", newline: false)
+      reset_spinner
     end
 
     def finish
       if @started
         user_io.tell("… ", newline: false)
         user_io.tell("OK", color: :green, bright: true)
+        @started = false
       end
+    end
+
+    def spin
+      raise ImplementationError, "progress not started yet" unless @started
+      user_io.tell("#{@spinner[@spin_pos % @spinner.size]}\b", newline: false)
+      @spin_pos += 1
     end
 
     private
 
     attr_reader :label, :user_io
+
+    def reset_spinner
+      @spin_pos = 0
+    end
   end
 
   class << self
