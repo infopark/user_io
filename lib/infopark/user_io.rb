@@ -115,8 +115,9 @@ class UserIO
     read_line
   end
 
-  def ask(*text, default: nil)
+  def ask(*text, default: nil, expected: "yes")
     # TODO implementation error if default not boolean or nil
+    # TODO implementation error if expected not "yes" or "no"
     tell("-" * 80)
     tell(*text, color: :cyan, bright: true)
     tell("-" * 80)
@@ -130,7 +131,7 @@ class UserIO
       tell("I couldn't understand “#{answer}”.", newline: false, color: :red, bright: true)
       tell(" > ", newline: false)
     end
-    answer == "yes"
+    answer == expected
   end
 
   def listen(prompt = nil, **options)

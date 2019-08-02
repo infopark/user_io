@@ -107,6 +107,46 @@ RSpec.describe UserIO do
         # TODO
       end
     end
+
+    context "with “expected”" do
+      let(:ask_options) { {expected: expected_value} }
+
+      context "“yes”" do
+        let(:expected_value) { "yes" }
+
+        it_behaves_like "any question"
+
+        it "returns “true” when answering “yes”" do
+          expect($stdin).to receive(:gets).and_return("yes\n")
+          expect(ask).to be true
+        end
+
+        it "returns “false” when answering “no”"do
+          expect($stdin).to receive(:gets).and_return("no\n")
+          expect(ask).to be false
+        end
+      end
+
+      context "“no”" do
+        let(:expected_value) { "no" }
+
+        it_behaves_like "any question"
+
+        it "returns “true” when answering “no”" do
+          expect($stdin).to receive(:gets).and_return("no\n")
+          expect(ask).to be true
+        end
+
+        it "returns “false” when answering “yes”" do
+          expect($stdin).to receive(:gets).and_return("yes\n")
+          expect(ask).to be false
+        end
+      end
+
+      context "other" do
+        # TODO
+      end
+    end
   end
 
   describe "#select" do
