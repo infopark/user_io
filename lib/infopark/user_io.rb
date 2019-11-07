@@ -177,12 +177,16 @@ class UserIO
     STDOUT.tty?
   end
 
-  def edit_file(kind_of_data, filename = nil)
+  def edit_file(kind_of_data, filename = nil, template: nil)
     wait_for_foreground if background?
 
     editor = ENV['EDITOR'] or raise MissingEnv, "No EDITOR specified."
 
     filename ||= Tempfile.new("").path
+    if template && File.empty?(filename)
+      File.write(filename, template)
+    end
+
     tell("Start editing #{kind_of_data} using #{editor}…")
     sleep(1.7)
     system(editor, filename)
