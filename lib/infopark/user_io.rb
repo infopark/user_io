@@ -183,7 +183,7 @@ class UserIO
     editor = ENV['EDITOR'] or raise MissingEnv, "No EDITOR specified."
 
     filename ||= Tempfile.new("").path
-    if template && File.empty?(filename)
+    if template && (!File.exists?(filename) || File.empty?(filename))
       File.write(filename, template)
     end
 
