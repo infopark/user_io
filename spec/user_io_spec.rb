@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 module Infopark
-
 RSpec.describe(UserIO) do
   let(:options) { {} }
 
@@ -428,5 +427,4 @@ RSpec.describe(UserIO) do
     end
   end
 end
-
 end

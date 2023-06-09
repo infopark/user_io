@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 module Infopark
-
 # TODO extract into infopark base gem
 class ImplementationError < StandardError; end
 
@@ -341,7 +340,6 @@ class UserIO
     sgr_sequence(*sequence)
   end
 end
-
 end
 
 require_relative "user_io/global"

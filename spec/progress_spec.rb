@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 module Infopark
-
 RSpec.describe(UserIO::Progress) do
   COLOR_BRIGHT_GREEN = "\e[1;32m"
   COLOR_NORMAL = "\e[22;39m"
@@ -155,5 +154,4 @@ RSpec.describe(UserIO::Progress) do
     end
   end
 end
-
 end
