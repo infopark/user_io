@@ -75,6 +75,9 @@ Metrics/ParameterLists:
 Metrics/PerceivedComplexity:
   Enabled: false
 
+Naming/FileName:
+  Exclude:
+    - lib/infopark-user_io.rb
 Naming/HeredocDelimiterNaming:
   Enabled: false
 Naming/MethodParameterName:
