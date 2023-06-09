@@ -224,8 +224,8 @@ RSpec.describe(UserIO) do
 
     it "tells all data from stream in non blocking chunks" do
       expect(stream).to(receive(:eof?).and_return(false, false, false, true))
-      expect(stream).to(receive(:read_nonblock).with(100).
-          and_return("first\nchunk", "second chunk", "\nlast chunk"))
+      expect(stream).to(receive(:read_nonblock).with(100)
+          .and_return("first\nchunk", "second chunk", "\nlast chunk"))
       expect($stdout).to(receive(:write).with("first\nchunk"))
       expect($stdout).to(receive(:write).with("second chunk"))
       expect($stdout).to(receive(:write).with("\nlast chunk"))
@@ -269,8 +269,8 @@ RSpec.describe(UserIO) do
 
         it "writes the prefix right after the CR" do
           expect($stdout).to(receive(:write).with("[the prefix] ").ordered)
-          expect($stdout).to(receive(:write).
-              with("some\r[the prefix] data\r[the prefix] with\r[the prefix] CRs").ordered)
+          expect($stdout).to(receive(:write)
+              .with("some\r[the prefix] data\r[the prefix] with\r[the prefix] CRs").ordered)
           tell
         end
 
@@ -297,8 +297,8 @@ RSpec.describe(UserIO) do
 
         it "writes the prefix right after the NL" do
           expect($stdout).to(receive(:write).with("[the prefix] ").ordered)
-          expect($stdout).to(receive(:write).
-              with("some\n[the prefix] data\n[the prefix] with\n[the prefix] NLs"))
+          expect($stdout).to(receive(:write)
+              .with("some\n[the prefix] data\n[the prefix] with\n[the prefix] NLs"))
           tell
         end
 
@@ -343,14 +343,14 @@ RSpec.describe(UserIO) do
               expect($stdout).to(receive(:write).with("[the prefix] ").ordered)
               expect($stdout).to(receive(:write).with("\e[33m").ordered)
               expect($stdout).to(receive(:write).with("some").ordered)
-              expect($stdout).to(receive(:write).
-                  with("\n" "\e[22;39m" "[the prefix] " "\e[33m").ordered)
+              expect($stdout).to(receive(:write)
+                  .with("\n" "\e[22;39m" "[the prefix] " "\e[33m").ordered)
               expect($stdout).to(receive(:write).with("data").ordered)
-              expect($stdout).to(receive(:write).
-                  with("\n" "\e[22;39m" "[the prefix] " "\e[33m").ordered)
+              expect($stdout).to(receive(:write)
+                  .with("\n" "\e[22;39m" "[the prefix] " "\e[33m").ordered)
               expect($stdout).to(receive(:write).with("with").ordered)
-              expect($stdout).to(receive(:write).
-                  with("\n" "\e[22;39m" "[the prefix] " "\e[33m").ordered)
+              expect($stdout).to(receive(:write)
+                  .with("\n" "\e[22;39m" "[the prefix] " "\e[33m").ordered)
               expect($stdout).to(receive(:write).with("NLs").ordered)
               expect($stdout).to(receive(:write).with("\n").ordered)
               expect($stdout).to(receive(:write).with("\e[22;39m").ordered)
@@ -416,8 +416,8 @@ RSpec.describe(UserIO) do
         expect($stdout).to(receive(:write).with("\e[33m").ordered)
         expect($stdout).to(receive(:write).with("data").ordered)
         expect($stdout).to(receive(:write).with("\n" "\e[22;39m" "[foo] " "\e[33m").ordered)
-        expect($stdout).to(receive(:write).
-            with("in\n" "\e[22;39m" "[foo] " "\e[33m" "chunks").ordered)
+        expect($stdout).to(receive(:write)
+            .with("in\n" "\e[22;39m" "[foo] " "\e[33m" "chunks").ordered)
         expect($stdout).to(receive(:write).with("yo").ordered)
         expect($stdout).to(receive(:write).with("\n").ordered)
         expect($stdout).to(receive(:write).with("\e[22;39m").ordered)
