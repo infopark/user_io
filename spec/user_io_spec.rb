@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require "securerandom"
+
 module Infopark
   RSpec.describe(UserIO) do
     let(:options) { {} }
@@ -142,6 +144,53 @@ module Infopark
 
         context "other" do
           # TODO
+        end
+      end
+    end
+
+    describe "#confirm" do
+      subject(:confirm) { user_io.confirm(*confirm_texts, **confirm_options) }
+
+      before { allow(user_io).to(receive(:ask)).and_return(ask_result) }
+
+      let(:ask_result) { true }
+      let(:confirm_options) do
+        [
+          {expected: "yes"},
+          {default: "foo", expected: "bar"},
+          {},
+        ].sample
+      end
+      let(:confirm_texts) do
+        [
+          %w[foo bar],
+          %w[baz],
+          [],
+        ].sample
+      end
+
+      it "delegates to #ask" do
+        confirm
+        if confirm_texts.empty? && confirm_options.empty?
+          expect(user_io).to(have_received(:ask).with(no_args))
+        else
+          expect(user_io).to(have_received(:ask).with(*confirm_texts, **confirm_options))
+        end
+      end
+
+      context "when #ask returns truthy" do
+        let(:ask_result) { [SecureRandom.hex, 1, true].sample }
+
+        it "returns the result" do
+          expect(confirm).to(be(ask_result))
+        end
+      end
+
+      context "when #ask returns falsey" do
+        let(:ask_result) { [nil, false].sample }
+
+        it "aborts" do
+          expect { confirm }.to(raise_error(UserIO::Aborted))
         end
       end
     end

@@ -146,8 +146,8 @@ module Infopark
       read_line.strip
     end
 
-    def confirm(*text)
-      ask(*text) or raise(Aborted)
+    def confirm(*text, **options)
+      ask(*text, **options) or raise(Aborted)
     end
 
     def new_progress(label)
