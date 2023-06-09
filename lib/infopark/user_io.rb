@@ -93,7 +93,7 @@ module Infopark
         next if chunk.empty?
 
         write_raw("\n#{uncolored_prefix}") if nl_pending
-        chunk.chop! if nl_pending = chunk.end_with?("\n")
+        chunk.chop! if (nl_pending = chunk.end_with?("\n"))
         chunk.gsub!(/([\r\n])/, "\\1#{uncolored_prefix}")
         write_raw(chunk)
       end
@@ -294,7 +294,7 @@ module Infopark
 
     def compute_color(**options)
       if tty?
-        if prefix = text_color(**options)
+        if (prefix = text_color(**options))
           # TODO: matching annihilators for options
           postfix = text_color(color: :none, bright: false)
         end
