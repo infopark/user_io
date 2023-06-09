@@ -1,10 +1,10 @@
 # frozen_string_literal: true
 
-RSpec.describe(Infopark::UserIO::Global) do
-  class GlobalTest
-    include ::Infopark::UserIO::Global
-  end
+class GlobalTest
+  include ::Infopark::UserIO::Global
+end
 
+RSpec.describe(Infopark::UserIO::Global) do
   subject(:global_included) { GlobalTest.new }
 
   let(:user_io) { ::Infopark::UserIO.new }
