@@ -68,9 +68,9 @@ module Infopark
       when String
         @output_prefix = "[#{output_prefix}] "
       when Proc, Method
-        @output_prefix_proc = ->() { "[#{output_prefix.call}] " }
+        @output_prefix_proc = -> { "[#{output_prefix.call}] " }
       when :timestamp
-        @output_prefix_proc = ->() { "[#{Time.now.strftime('%T.%L')}] " }
+        @output_prefix_proc = -> { "[#{Time.now.strftime('%T.%L')}] " }
       end
       @line_pending = {}
     end
