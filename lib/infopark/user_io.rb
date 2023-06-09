@@ -257,7 +257,7 @@ module Infopark
     end
 
     def output_prefix
-      @output_prefix || @output_prefix_proc && @output_prefix_proc.call
+      @output_prefix || @output_prefix_proc&.call
     end
 
     def read_line
