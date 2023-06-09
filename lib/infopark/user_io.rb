@@ -293,11 +293,9 @@ module Infopark
     end
 
     def compute_color(**options)
-      if tty?
-        if (prefix = text_color(**options))
-          # TODO: matching annihilators for options
-          postfix = text_color(color: :none, bright: false)
-        end
+      if tty? && (prefix = text_color(**options))
+        # TODO: matching annihilators for options
+        postfix = text_color(color: :none, bright: false)
       end
       [prefix, postfix]
     end
