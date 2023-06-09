@@ -284,7 +284,7 @@ RSpec.describe(UserIO) do
               "some\r"\
               "\e[22;39m" "[the prefix] " "\e[33m" "data\r"\
               "\e[22;39m" "[the prefix] " "\e[33m" "with\r"\
-              "\e[22;39m" "[the prefix] " "\e[33m" "CRs"
+              "\e[22;39m" "[the prefix] " "\e[33m" "CRs",
             ).ordered)
             expect($stdout).to(receive(:write).with("\e[22;39m").ordered)
             tell
@@ -312,7 +312,7 @@ RSpec.describe(UserIO) do
               "some\n"\
               "\e[22;39m" "[the prefix] " "\e[33m" "data\n"\
               "\e[22;39m" "[the prefix] " "\e[33m" "with\n"\
-              "\e[22;39m" "[the prefix] " "\e[33m" "NLs"
+              "\e[22;39m" "[the prefix] " "\e[33m" "NLs",
             ).ordered)
             expect($stdout).to(receive(:write).with("\e[22;39m").ordered)
             tell
