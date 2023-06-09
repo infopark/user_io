@@ -73,18 +73,66 @@ module Infopark
     end
 
     describe "#ask" do
-      before { allow($stdin).to(receive(:gets).and_return("yes\n")) }
+      subject(:ask) { user_io.ask(*ask_texts, **ask_options.merge(tell_options)) }
 
+      before do
+        allow($stdin).to(receive(:gets).and_return("#{answer}\n"))
+        allow(user_io).to(receive(:tell))
+      end
+
+      let(:answer) { "yes" }
+      let(:ask_texts) do
+        [
+          ["do you want to?"],
+          ["do", "you", "want", "to?"],
+          [],
+        ].sample
+      end
       let(:ask_options) { {} }
-      let(:question) { "do you want to?" }
+      let(:tell_options) do
+        [
+          {italic: true},
+          {prefix: "foo", bold: false},
+          {},
+        ].sample
+      end
 
-      subject(:ask) { user_io.ask(*Array(question), **ask_options) }
+      shared_examples_for "any question" do |invert_answer: false|
+        it "tells the message (colorized)" do
+          expect(user_io).to(receive(:tell).with(*ask_texts, **tell_options, color: :cyan, bright: true))
+          ask
+        end
 
-      shared_examples_for "any question" do
+        it "requests input" do
+          expect($stdin).to(receive(:gets).and_return("\n"))
+          ask
+        end
+
+        context "when answer is “yes”" do
+          let(:answer) { "yes" }
+
+          it { is_expected.to(be(invert_answer ? false : true))}
+        end
+
+        context "when answer is “no”" do
+          let(:answer) { "no" }
+
+          it { is_expected.to(be(invert_answer ? true : false))}
+        end
+
         # TODO
         # it_behaves_like "handling valid answer"
         # it_behaves_like "handling invalid input"
-        # it_behaves_like "printing prefix on every line"
+      end
+
+      it "asks for answer" do
+        expect(user_io).to(receive(:tell).with("(yes/no) > ", **tell_options, newline: false))
+        ask
+      end
+
+      it "returns “false” on empty input" do
+        expect($stdin).to(receive(:gets).and_return("\n"))
+        expect(ask).to(be(false))
       end
 
       context "with default" do
@@ -94,7 +142,7 @@ module Infopark
           let(:default_value) { true }
 
           it "presents default answer “yes”" do
-            expect($stdout).to(receive(:write).with("(yes/no) [yes] > "))
+            expect(user_io).to(receive(:tell).with("(yes/no) [yes] > ", **tell_options, newline: false))
             ask
           end
 
@@ -110,7 +158,7 @@ module Infopark
           let(:default_value) { false }
 
           it "presents default answer “no”" do
-            expect($stdout).to(receive(:write).with("(yes/no) [no] > "))
+            expect(user_io).to(receive(:tell).with("(yes/no) [no] > ", **tell_options, newline: false))
             ask
           end
 
@@ -149,7 +197,7 @@ module Infopark
         context "“no”" do
           let(:expected_value) { "no" }
 
-          it_behaves_like "any question"
+          it_behaves_like "any question", invert_answer: true
 
           it "returns “true” when answering “no”" do
             expect($stdin).to(receive(:gets).and_return("no\n"))
