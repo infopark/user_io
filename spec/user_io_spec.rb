@@ -281,9 +281,9 @@ RSpec.describe(UserIO) do
             expect($stdout).to(receive(:write).with("[the prefix] ").ordered)
             expect($stdout).to(receive(:write).with("\e[33m").ordered)
             expect($stdout).to(receive(:write).with(
-              "some\r"\
-              "\e[22;39m" "[the prefix] " "\e[33m" "data\r"\
-              "\e[22;39m" "[the prefix] " "\e[33m" "with\r"\
+              "some\r" \
+              "\e[22;39m" "[the prefix] " "\e[33m" "data\r" \
+              "\e[22;39m" "[the prefix] " "\e[33m" "with\r" \
               "\e[22;39m" "[the prefix] " "\e[33m" "CRs",
             ).ordered)
             expect($stdout).to(receive(:write).with("\e[22;39m").ordered)
@@ -309,9 +309,9 @@ RSpec.describe(UserIO) do
             expect($stdout).to(receive(:write).with("[the prefix] ").ordered)
             expect($stdout).to(receive(:write).with("\e[33m").ordered)
             expect($stdout).to(receive(:write).with(
-              "some\n"\
-              "\e[22;39m" "[the prefix] " "\e[33m" "data\n"\
-              "\e[22;39m" "[the prefix] " "\e[33m" "with\n"\
+              "some\n" \
+              "\e[22;39m" "[the prefix] " "\e[33m" "data\n" \
+              "\e[22;39m" "[the prefix] " "\e[33m" "with\n" \
               "\e[22;39m" "[the prefix] " "\e[33m" "NLs",
             ).ordered)
             expect($stdout).to(receive(:write).with("\e[22;39m").ordered)
