@@ -35,7 +35,7 @@ module Infopark
       subject(:acknowledge) { user_io.acknowledge(message) }
 
       it "presents the message (colorized)" do
-        expect($stdout).to(receive(:write).with("\e[1;36m""Some important statement.""\e[22;39m\n"))
+        expect($stdout).to(receive(:write).with("\e[1;36mSome important statement.\e[22;39m\n"))
         acknowledge
       end
 
@@ -278,9 +278,9 @@ module Infopark
               expect($stdout).to(receive(:write).with("\e[33m").ordered)
               expect($stdout).to(receive(:write).with(
                 "some\r" \
-                "\e[22;39m" "[the prefix] " "\e[33m" "data\r" \
-                "\e[22;39m" "[the prefix] " "\e[33m" "with\r" \
-                "\e[22;39m" "[the prefix] " "\e[33m" "CRs",
+                "\e[22;39m[the prefix] \e[33mdata\r" \
+                "\e[22;39m[the prefix] \e[33mwith\r" \
+                "\e[22;39m[the prefix] \e[33mCRs",
               ).ordered)
               expect($stdout).to(receive(:write).with("\e[22;39m").ordered)
               tell
@@ -306,9 +306,9 @@ module Infopark
               expect($stdout).to(receive(:write).with("\e[33m").ordered)
               expect($stdout).to(receive(:write).with(
                 "some\n" \
-                "\e[22;39m" "[the prefix] " "\e[33m" "data\n" \
-                "\e[22;39m" "[the prefix] " "\e[33m" "with\n" \
-                "\e[22;39m" "[the prefix] " "\e[33m" "NLs",
+                "\e[22;39m[the prefix] \e[33mdata\n" \
+                "\e[22;39m[the prefix] \e[33mwith\n" \
+                "\e[22;39m[the prefix] \e[33mNLs",
               ).ordered)
               expect($stdout).to(receive(:write).with("\e[22;39m").ordered)
               tell
@@ -322,11 +322,11 @@ module Infopark
             it "does not write prefix after the last newline" do
               expect($stdout).to(receive(:write).with("[the prefix] ").ordered)
               expect($stdout).to(receive(:write).with("some").ordered)
-              expect($stdout).to(receive(:write).with("\n" "[the prefix] ").ordered)
+              expect($stdout).to(receive(:write).with("\n[the prefix] ").ordered)
               expect($stdout).to(receive(:write).with("data").ordered)
-              expect($stdout).to(receive(:write).with("\n" "[the prefix] ").ordered)
+              expect($stdout).to(receive(:write).with("\n[the prefix] ").ordered)
               expect($stdout).to(receive(:write).with("with").ordered)
-              expect($stdout).to(receive(:write).with("\n" "[the prefix] ").ordered)
+              expect($stdout).to(receive(:write).with("\n[the prefix] ").ordered)
               expect($stdout).to(receive(:write).with("NLs").ordered)
               expect($stdout).to(receive(:write).with("\n").ordered)
               tell
@@ -339,14 +339,11 @@ module Infopark
                 expect($stdout).to(receive(:write).with("[the prefix] ").ordered)
                 expect($stdout).to(receive(:write).with("\e[33m").ordered)
                 expect($stdout).to(receive(:write).with("some").ordered)
-                expect($stdout).to(receive(:write)
-                    .with("\n" "\e[22;39m" "[the prefix] " "\e[33m").ordered)
+                expect($stdout).to(receive(:write).with("\n\e[22;39m[the prefix] \e[33m").ordered)
                 expect($stdout).to(receive(:write).with("data").ordered)
-                expect($stdout).to(receive(:write)
-                    .with("\n" "\e[22;39m" "[the prefix] " "\e[33m").ordered)
+                expect($stdout).to(receive(:write).with("\n\e[22;39m[the prefix] \e[33m").ordered)
                 expect($stdout).to(receive(:write).with("with").ordered)
-                expect($stdout).to(receive(:write)
-                    .with("\n" "\e[22;39m" "[the prefix] " "\e[33m").ordered)
+                expect($stdout).to(receive(:write).with("\n\e[22;39m[the prefix] \e[33m").ordered)
                 expect($stdout).to(receive(:write).with("NLs").ordered)
                 expect($stdout).to(receive(:write).with("\n").ordered)
                 expect($stdout).to(receive(:write).with("\e[22;39m").ordered)
@@ -411,9 +408,8 @@ module Infopark
           expect($stdout).to(receive(:write).with("[foo] ").ordered)
           expect($stdout).to(receive(:write).with("\e[33m").ordered)
           expect($stdout).to(receive(:write).with("data").ordered)
-          expect($stdout).to(receive(:write).with("\n" "\e[22;39m" "[foo] " "\e[33m").ordered)
-          expect($stdout).to(receive(:write)
-              .with("in\n" "\e[22;39m" "[foo] " "\e[33m" "chunks").ordered)
+          expect($stdout).to(receive(:write).with("\n\e[22;39m[foo] \e[33m").ordered)
+          expect($stdout).to(receive(:write).with("in\n\e[22;39m[foo] \e[33mchunks").ordered)
           expect($stdout).to(receive(:write).with("yo").ordered)
           expect($stdout).to(receive(:write).with("\n").ordered)
           expect($stdout).to(receive(:write).with("\e[22;39m").ordered)
