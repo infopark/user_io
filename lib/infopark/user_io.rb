@@ -52,7 +52,8 @@ module Infopark
 
       private
 
-      attr_reader :label, :user_io
+      attr_reader :label
+      attr_reader :user_io
 
       def reset_spinner
         @spin_pos = 0
