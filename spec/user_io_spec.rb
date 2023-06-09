@@ -122,7 +122,7 @@ RSpec.describe(UserIO) do
           expect(ask).to(be(true))
         end
 
-        it "returns “false” when answering “no”"do
+        it "returns “false” when answering “no”" do
           expect($stdin).to(receive(:gets).and_return("no\n"))
           expect(ask).to(be(false))
         end
