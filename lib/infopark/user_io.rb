@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 module Infopark
 
 # TODO extract into infopark base gem

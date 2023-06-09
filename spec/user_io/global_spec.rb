@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 RSpec.describe(Infopark::UserIO::Global) do
   class GlobalTest
     include ::Infopark::UserIO::Global
