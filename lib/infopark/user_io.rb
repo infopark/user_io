@@ -80,12 +80,13 @@ module Infopark
       tell(msg.chomp, newline: msg.end_with?("\n"))
     end
 
-    def acknowledge(*text)
-      tell("-" * 80)
-      tell(*text, color: :cyan, bright: true)
-      tell("-" * 80)
-      tell("Please press ENTER to continue.")
+    def acknowledge(*texts, **options)
+      tell("-" * 80, **options)
+      tell(*texts, **options, color: :cyan, bright: true)
+      tell("-" * 80, **options)
+      tell("Please press ENTER to continue.", **options)
       read_line
+      nil
     end
 
     def ask(*text, default: nil, expected: "yes")

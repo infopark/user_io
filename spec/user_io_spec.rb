@@ -30,25 +30,45 @@ module Infopark
     end
 
     describe "#acknowledge" do
-      before { allow($stdin).to(receive(:gets).and_return("\n")) }
+      subject(:acknowledge) { user_io.acknowledge(*ack_texts, **ack_options) }
 
-      let(:message) { "Some important statement." }
+      before do
+        allow($stdin).to(receive(:gets).and_return("\n"))
+        allow(user_io).to(receive(:tell))
+      end
 
-      subject(:acknowledge) { user_io.acknowledge(message) }
+      let(:ack_options) do
+        [
+          {newline: true},
+          {prefix: "foo", newline: false},
+          {},
+        ].sample
+      end
+      let(:ack_texts) do
+        [
+          ["Some important statement."],
+          ["Some", "important", "statement!"],
+          [],
+        ].sample
+      end
 
-      it "presents the message (colorized)" do
-        expect($stdout).to(receive(:write).with("\e[1;36mSome important statement.\e[22;39m\n"))
+      it "tells the message (colorized)" do
+        expect(user_io).to(receive(:tell).with(*ack_texts, **ack_options, color: :cyan, bright: true))
         acknowledge
       end
 
       it "asks for pressing “Enter”" do
-        expect($stdout).to(receive(:write).with("Please press ENTER to continue.\n"))
+        expect(user_io).to(receive(:tell).with("Please press ENTER to continue.", **ack_options))
         acknowledge
       end
 
       it "requests input" do
         expect($stdin).to(receive(:gets).and_return("\n"))
         acknowledge
+      end
+
+      it "returns nil" do
+        expect(acknowledge).to(be_nil)
       end
     end
 
