@@ -70,7 +70,7 @@ module Infopark
       when Proc, Method
         @output_prefix_proc = ->() { "[#{output_prefix.call}] " }
       when :timestamp
-        @output_prefix_proc = ->() { "[#{Time.now.strftime("%T.%L")}] " }
+        @output_prefix_proc = ->() { "[#{Time.now.strftime('%T.%L')}] " }
       end
       @line_pending = {}
     end
@@ -302,7 +302,7 @@ module Infopark
     end
 
     def control_sequence(*parameters, function)
-      "\033[#{parameters.join(";")}#{function}"
+      "\033[#{parameters.join(';')}#{function}"
     end
 
     # SGR: Select Graphic Rendition … far too long for a function name ;)
