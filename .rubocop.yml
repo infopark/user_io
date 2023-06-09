@@ -1,0 +1,142 @@
+AllCops:
+  NewCops: enable
+
+Layout/ArgumentAlignment:
+  EnforcedStyle: with_fixed_indentation
+Layout/ArrayAlignment:
+  EnforcedStyle: with_fixed_indentation
+Layout/FirstArgumentIndentation:
+  EnforcedStyle: consistent
+Layout/FirstArrayElementIndentation:
+  EnforcedStyle: consistent
+Layout/FirstHashElementIndentation:
+  EnforcedStyle: consistent
+Layout/FirstHashElementLineBreak:
+  Enabled: true
+Layout/LineContinuationLeadingSpace:
+  EnforcedStyle: leading
+Layout/LineLength:
+  Enabled: false
+Layout/MultilineMethodCallIndentation:
+  EnforcedStyle: indented
+Layout/MultilineOperationIndentation:
+  EnforcedStyle: indented
+Layout/ParameterAlignment:
+  EnforcedStyle: with_fixed_indentation
+Layout/SpaceInsideBlockBraces:
+  SpaceBeforeBlockParameters: false
+Layout/SpaceInsideHashLiteralBraces:
+  EnforcedStyle: no_space
+
+Lint/DuplicateBranch:
+  IgnoreLiteralBranches: true
+Lint/RedundantSafeNavigation:
+  Enabled: false
+Lint/SuppressedException:
+  AllowComments: true
+Lint/UnusedMethodArgument:
+  AllowUnusedKeywordArguments: true
+
+Metrics/AbcSize:
+  Enabled: false
+Metrics/BlockLength:
+  CountAsOne:
+    - array
+    - hash
+    - heredoc
+    - method_call
+  AllowedMethods:
+    - retry_on_conflict_error
+    - transaction
+  Exclude:
+    - "spec/**"
+Metrics/ClassLength:
+  CountAsOne:
+    - array
+    - hash
+    - heredoc
+  Enabled: false
+Metrics/CyclomaticComplexity:
+  Enabled: false
+Metrics/MethodLength:
+  CountAsOne:
+    - array
+    - hash
+    - heredoc
+  Enabled: false
+Metrics/ModuleLength:
+  CountAsOne:
+    - array
+    - hash
+    - heredoc
+  Enabled: false
+Metrics/ParameterLists:
+  CountKeywordArgs: false
+Metrics/PerceivedComplexity:
+  Enabled: false
+
+Naming/FileName:
+  Exclude:
+    - lib/infopark-user_io.rb
+Naming/HeredocDelimiterNaming:
+  Enabled: false
+Naming/MethodParameterName:
+  AllowedNames:
+    - e
+Naming/VariableNumber:
+  Enabled: false
+
+Style/AccessorGrouping:
+  EnforcedStyle: separated
+Style/AndOr:
+  Enabled: false
+Style/AsciiComments:
+  Enabled: false
+Style/CaseEquality:
+  Enabled: false
+Style/CollectionCompact:
+  Enabled: false
+Style/Documentation:
+  Enabled: false
+Style/DoubleNegation:
+  Enabled: false
+Style/EmptyElse:
+  EnforcedStyle: empty
+Style/FormatString:
+  Enabled: false
+Style/FormatStringToken:
+  Enabled: false
+Style/GuardClause:
+  AllowConsecutiveConditionals: true
+Style/IfUnlessModifier:
+  Enabled: false
+Style/KeywordParametersOrder:
+  Enabled: false
+Style/Lambda:
+  Enabled: false
+Style/MethodCallWithArgsParentheses:
+  Enabled: true
+Style/NumericPredicate:
+  Enabled: false
+Style/OptionalBooleanParameter:
+  Enabled: false
+Style/PercentLiteralDelimiters:
+  Enabled: false
+Style/RedundantArgument:
+  Enabled: false
+Style/RedundantConstantBase:
+  Enabled: false
+Style/RescueModifier:
+  Enabled: false
+Style/RescueStandardError:
+  EnforcedStyle: implicit
+Style/StringLiterals:
+  EnforcedStyle: double_quotes
+Style/TrailingCommaInArguments:
+  EnforcedStyleForMultiline: consistent_comma
+Style/TrailingCommaInArrayLiteral:
+  EnforcedStyleForMultiline: consistent_comma
+Style/TrailingCommaInHashLiteral:
+  EnforcedStyleForMultiline: consistent_comma
+Style/TrailingUnderscoreVariable:
+  Enabled: false
