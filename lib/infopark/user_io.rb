@@ -166,7 +166,7 @@ module Infopark
 
     def foreground
       if @foreground_thread
-        @background_data.each(&STDOUT.method(:write))
+        @background_data.each(&$stdout.method(:write))
         @foreground_thread = nil
         # take over line_pending from background
         @line_pending[false] = @line_pending[true]
@@ -179,7 +179,7 @@ module Infopark
     end
 
     def tty?
-      STDOUT.tty?
+      $stdout.tty?
     end
 
     def edit_file(kind_of_data, filename = nil, template: nil)
@@ -263,7 +263,7 @@ module Infopark
     def read_line
       wait_for_foreground if background?
       @line_pending[false] = false
-      STDIN.gets.chomp
+      $stdin.gets.chomp
     end
 
     def tell_line(line, newline: true, prefix: true, **color_options)
@@ -280,7 +280,7 @@ module Infopark
       if background?
         @background_data << bytes
       else
-        STDOUT.write(bytes)
+        $stdout.write(bytes)
       end
     end
 
