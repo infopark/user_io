@@ -203,12 +203,12 @@ module Infopark
       return if items.empty?
 
       describer =
-          case item_describer
-          when Method, Proc
-            item_describer
-          else
-            ->(item) { item.send(item_describer) }
-          end
+        case item_describer
+        when Method, Proc
+          item_describer
+        else
+          ->(item) { item.send(item_describer) }
+        end
 
       choice = nil
       if items.size == 1
