@@ -390,18 +390,21 @@ module Infopark
         let(:options) { {output_prefix: "foo"} }
         let(:data) { [+"data\n", +"in\nchunks", +"", +"yo\n", +""] }
 
-        let!(:foreground_thread) do
-          @finished = false
-          Thread.new do
+        before do
+          @fg_in = Thread::Queue.new
+          @fg_out = Thread::Queue.new
+          @fg_thread = Thread.new do
             user_io.background_other_threads
-            sleep(0.1) until @finished
+            @fg_out.push(:other_backgrounded)
+            @fg_in.pop
             user_io.foreground
           end
         end
 
-        after { foreground_thread.kill.join }
+        after { @fg_thread.kill.join }
 
         it "holds back the output until coming back to foreground" do
+          @fg_out.pop(timeout: 1)
           expect($stdout).to_not(receive(:write))
           tell
           RSpec::Mocks.space.proxy_for($stdout).reset
@@ -413,8 +416,8 @@ module Infopark
           expect($stdout).to(receive(:write).with("yo").ordered)
           expect($stdout).to(receive(:write).with("\n").ordered)
           expect($stdout).to(receive(:write).with("\e[22;39m").ordered)
-          @finished = true
-          foreground_thread.join
+          @fg_in.push(:background_done)
+          @fg_thread.join
         end
       end
     end
