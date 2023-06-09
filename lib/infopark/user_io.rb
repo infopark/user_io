@@ -79,7 +79,7 @@ module Infopark
       lines = texts.flatten.map {|text| text.to_s.split("\n", -1) }.flatten
 
       lines[0...-1].each {|line| tell_line(line, **line_options) }
-      tell_line(lines.last, newline: newline, **line_options)
+      tell_line(lines.last, newline:, **line_options)
     end
 
     def tell_pty_stream(stream, **color_options)
