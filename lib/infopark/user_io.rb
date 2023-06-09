@@ -30,6 +30,7 @@ module Infopark
 
       def increment
         raise(ImplementationError, "progress not started yet") unless @started
+
         user_io.tell(".", newline: false)
         reset_spinner
       end
@@ -44,6 +45,7 @@ module Infopark
 
       def spin
         raise(ImplementationError, "progress not started yet") unless @started
+
         user_io.tell("#{@spinner[@spin_pos % @spinner.size]}\b", newline: false)
         @spin_pos += 1
       end
@@ -89,6 +91,7 @@ module Infopark
       until stream.eof?
         chunk = stream.read_nonblock(100)
         next if chunk.empty?
+
         write_raw("\n#{uncolored_prefix}") if nl_pending
         chunk.chop! if nl_pending = chunk.end_with?("\n")
         chunk.gsub!(/([\r\n])/, "\\1#{uncolored_prefix}")
@@ -309,6 +312,7 @@ module Infopark
 
     def text_color(color: nil, bright: nil, faint: nil, italic: nil, underline: nil)
       return if color.nil? && bright.nil?
+
       sequence = []
       unless bright.nil? && faint.nil?
         sequence <<
