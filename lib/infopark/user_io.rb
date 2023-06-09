@@ -180,7 +180,7 @@ class UserIO
   def edit_file(kind_of_data, filename = nil, template: nil)
     wait_for_foreground if background?
 
-    editor = ENV['EDITOR'] or raise MissingEnv, "No EDITOR specified."
+    editor = ENV["EDITOR"] or raise MissingEnv, "No EDITOR specified."
 
     filename ||= Tempfile.new("").path
     if template && (!File.exists?(filename) || File.empty?(filename))
@@ -342,4 +342,4 @@ end
 
 end
 
-require_relative 'user_io/global'
+require_relative "user_io/global"

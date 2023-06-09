@@ -1,4 +1,4 @@
-require_relative '../lib/infopark-user_io'
+require_relative "../lib/infopark-user_io"
 
 RSpec.configure do |config|
   config.expect_with :rspec do |expectations|

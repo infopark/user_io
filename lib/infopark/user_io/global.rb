@@ -1,4 +1,4 @@
-require_relative '../user_io'
+require_relative "../user_io"
 
 module Infopark::UserIO::Global
   def user_io
