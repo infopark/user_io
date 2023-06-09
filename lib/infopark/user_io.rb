@@ -80,30 +80,31 @@ module Infopark
       tell(msg.chomp, newline: msg.end_with?("\n"))
     end
 
-    def acknowledge(*text)
-      tell("-" * 80)
-      tell(*text, color: :cyan, bright: true)
-      tell("-" * 80)
-      tell("Please press ENTER to continue.")
+    def acknowledge(*texts, **options)
+      tell("-" * 80, **options)
+      tell(*texts, **options, color: :cyan, bright: true)
+      tell("-" * 80, **options)
+      tell("Please press ENTER to continue.", **options)
       read_line
+      nil
     end
 
-    def ask(*text, default: nil, expected: "yes")
+    def ask(*texts, default: nil, expected: "yes", **tell_options)
       # TODO
       # - implementation error if default not boolean or nil
       # - implementation error if expected not "yes" or "no"
-      tell("-" * 80)
-      tell(*text, color: :cyan, bright: true)
-      tell("-" * 80)
+      tell("-" * 80, **tell_options)
+      tell(*texts, **tell_options, color: :cyan, bright: true)
+      tell("-" * 80, **tell_options)
       default_answer = default ? "yes" : "no" unless default.nil?
-      tell("(yes/no) #{default_answer && "[#{default_answer}] "}> ", newline: false)
+      tell("(yes/no) #{default_answer && "[#{default_answer}] "}> ", **tell_options, newline: false)
       until %w(yes no).include?((answer = read_line.strip.downcase))
         if answer.empty?
           answer = default_answer
           break
         end
-        tell("I couldn't understand “#{answer}”.", newline: false, color: :red, bright: true)
-        tell(" > ", newline: false)
+        tell("I couldn't understand “#{answer}”.", **tell_options, newline: false, color: :red, bright: true)
+        tell(" > ", **tell_options, newline: false)
       end
       answer == expected
     end
