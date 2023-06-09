@@ -64,9 +64,9 @@ RSpec.describe(UserIO) do
 
     shared_examples_for "any question" do
       # TODO
-      #it_behaves_like "handling valid answer"
-      #it_behaves_like "handling invalid input"
-      #it_behaves_like "printing prefix on every line"
+      # it_behaves_like "handling valid answer"
+      # it_behaves_like "handling invalid input"
+      # it_behaves_like "printing prefix on every line"
     end
 
     context "with default" do
