@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module Infopark
-  # TODO extract into infopark base gem
+  # TODO: extract into infopark base gem
   class ImplementationError < StandardError; end
 
   # TODO
@@ -120,8 +120,9 @@ module Infopark
     end
 
     def ask(*text, default: nil, expected: "yes")
-      # TODO implementation error if default not boolean or nil
-      # TODO implementation error if expected not "yes" or "no"
+      # TODO
+      # - implementation error if default not boolean or nil
+      # - implementation error if expected not "yes" or "no"
       tell("-" * 80)
       tell(*text, color: :cyan, bright: true)
       tell("-" * 80)
@@ -294,7 +295,7 @@ module Infopark
     def compute_color(**options)
       if tty?
         if prefix = text_color(**options)
-          # TODO matching annihilators for options
+          # TODO: matching annihilators for options
           postfix = text_color(color: :none, bright: false)
         end
       end
