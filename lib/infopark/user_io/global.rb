@@ -2,8 +2,12 @@
 
 require_relative "../user_io"
 
-module Infopark::UserIO::Global
-  def user_io
-    Infopark::UserIO.global
+module Infopark
+  module UserIO
+    module Global
+      def user_io
+        Infopark::UserIO.global
+      end
+    end
   end
 end
