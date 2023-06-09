@@ -12,4 +12,5 @@ Gem::Specification.new do |s|
   s.files = `git ls-files -z`.split("\0")
   s.license = "UNLICENSED"
   s.metadata["rubygems_mfa_required"] = "true"
+  s.required_ruby_version = ">=3.2"
 end
