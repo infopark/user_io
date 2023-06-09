@@ -311,7 +311,12 @@ module Infopark
       return if color.nil? && bright.nil?
       sequence = []
       unless bright.nil? && faint.nil?
-        sequence << (bright ? 1 : (faint ? 2 : 22))
+        sequence <<
+          if bright
+            1
+          else
+            faint ? 2 : 22
+          end
       end
       unless italic.nil?
         sequence << (italic ? 3 : 23)
