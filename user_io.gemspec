@@ -9,6 +9,7 @@ Gem::Specification.new do |s|
   s.email = "tilo@infopark.de"
   s.files = `git ls-files -z`.split("\0")
   s.license = "UNLICENSED"
+  s.metadata["rubygems_mfa_required"] = "true"
 
   s.add_development_dependency("bundler")
   s.add_development_dependency("rake")
