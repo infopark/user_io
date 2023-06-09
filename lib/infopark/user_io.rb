@@ -185,7 +185,7 @@ module Infopark
     def edit_file(kind_of_data, filename = nil, template: nil)
       wait_for_foreground if background?
 
-      editor = ENV["EDITOR"] or raise(MissingEnv, "No EDITOR specified.")
+      editor = ENV.fetch("EDITOR", nil) or raise(MissingEnv, "No EDITOR specified.")
 
       filename ||= Tempfile.new("").path
       if template && (!File.exist?(filename) || File.empty?(filename))
