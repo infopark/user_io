@@ -154,7 +154,7 @@ RSpec.describe(UserIO) do
     before { allow($stdin).to(receive(:gets).and_return("1\n")) }
 
     let(:description) { "a thing" }
-    let(:items) { [:a, :b, :c] }
+    let(:items) { %i[a b c] }
     let(:select_options) { {} }
 
     subject(:select) { user_io.select(description, items, **select_options) }
