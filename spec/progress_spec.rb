@@ -62,7 +62,6 @@ module Infopark
     describe "#spin" do
       subject(:spin) { progress.spin }
 
-
       context "on a started progress" do
         before { progress.start }
 
