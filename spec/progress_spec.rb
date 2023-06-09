@@ -1,6 +1,6 @@
 module Infopark
 
-RSpec.describe UserIO::Progress do
+RSpec.describe(UserIO::Progress) do
   COLOR_BRIGHT_GREEN = "\e[1;32m"
   COLOR_NORMAL = "\e[22;39m"
 
@@ -8,13 +8,13 @@ RSpec.describe UserIO::Progress do
 
   subject(:progress) { UserIO::Progress.new("the label", user_io) }
 
-  before { allow($stdout).to receive(:write) }
+  before { allow($stdout).to(receive(:write)) }
 
   describe "#start" do
     subject(:start) { progress.start }
 
     it "starts the progress" do
-      expect($stdout).to receive(:write).with("the label ")
+      expect($stdout).to(receive(:write).with("the label "))
       start
     end
 
@@ -22,7 +22,7 @@ RSpec.describe UserIO::Progress do
       before { progress.start }
 
       it "does nothing" do
-        expect($stdout).to_not receive(:write)
+        expect($stdout).to_not(receive(:write))
         start
       end
     end
@@ -35,14 +35,14 @@ RSpec.describe UserIO::Progress do
       before { progress.start }
 
       it "increments" do
-        expect($stdout).to receive(:write).with(".")
+        expect($stdout).to(receive(:write).with("."))
         increment
       end
     end
 
     context "on a not started progress" do
       it "fails" do
-        expect { increment }.to raise_error(/not started/)
+        expect { increment }.to(raise_error(/not started/))
       end
     end
 
@@ -53,7 +53,7 @@ RSpec.describe UserIO::Progress do
       end
 
       it "fails" do
-        expect { increment }.to raise_error(/not started/)
+        expect { increment }.to(raise_error(/not started/))
       end
     end
   end
@@ -66,45 +66,45 @@ RSpec.describe UserIO::Progress do
       before { progress.start }
 
       it "spins" do
-        expect($stdout).to receive(:write).with("-\b").ordered
+        expect($stdout).to(receive(:write).with("-\b").ordered)
         progress.spin
-        expect($stdout).to receive(:write).with("\\\b").ordered
+        expect($stdout).to(receive(:write).with("\\\b").ordered)
         progress.spin
-        expect($stdout).to receive(:write).with("|\b").ordered
+        expect($stdout).to(receive(:write).with("|\b").ordered)
         progress.spin
-        expect($stdout).to receive(:write).with("/\b").ordered
+        expect($stdout).to(receive(:write).with("/\b").ordered)
         progress.spin
-        expect($stdout).to receive(:write).with("-\b").ordered
+        expect($stdout).to(receive(:write).with("-\b").ordered)
         progress.spin
-        expect($stdout).to receive(:write).with("\\\b").ordered
+        expect($stdout).to(receive(:write).with("\\\b").ordered)
         progress.spin
-        expect($stdout).to receive(:write).with("|\b").ordered
+        expect($stdout).to(receive(:write).with("|\b").ordered)
         progress.spin
-        expect($stdout).to receive(:write).with("/\b").ordered
+        expect($stdout).to(receive(:write).with("/\b").ordered)
         progress.spin
       end
 
       it "starts spinning from begin when interrupted by an increment" do
-        expect($stdout).to receive(:write).with("-\b").ordered
+        expect($stdout).to(receive(:write).with("-\b").ordered)
         progress.spin
-        expect($stdout).to receive(:write).with("\\\b").ordered
+        expect($stdout).to(receive(:write).with("\\\b").ordered)
         progress.spin
-        expect($stdout).to receive(:write).with(".").ordered
+        expect($stdout).to(receive(:write).with(".").ordered)
         progress.increment
-        expect($stdout).to receive(:write).with("-\b").ordered
+        expect($stdout).to(receive(:write).with("-\b").ordered)
         progress.spin
-        expect($stdout).to receive(:write).with("\\\b").ordered
+        expect($stdout).to(receive(:write).with("\\\b").ordered)
         progress.spin
-        expect($stdout).to receive(:write).with("|\b").ordered
+        expect($stdout).to(receive(:write).with("|\b").ordered)
         progress.spin
-        expect($stdout).to receive(:write).with("/\b").ordered
+        expect($stdout).to(receive(:write).with("/\b").ordered)
         progress.spin
       end
     end
 
     context "on a not started progress" do
       it "fails" do
-        expect { spin }.to raise_error(/not started/)
+        expect { spin }.to(raise_error(/not started/))
       end
     end
 
@@ -115,7 +115,7 @@ RSpec.describe UserIO::Progress do
       end
 
       it "fails" do
-        expect { spin }.to raise_error(/not started/)
+        expect { spin }.to(raise_error(/not started/))
       end
     end
   end
@@ -127,15 +127,15 @@ RSpec.describe UserIO::Progress do
       before { progress.start }
 
       it "finishes" do
-        expect($stdout).to receive(:write).with("… ")
-        expect($stdout).to receive(:write).with("#{COLOR_BRIGHT_GREEN}OK#{COLOR_NORMAL}\n")
+        expect($stdout).to(receive(:write).with("… "))
+        expect($stdout).to(receive(:write).with("#{COLOR_BRIGHT_GREEN}OK#{COLOR_NORMAL}\n"))
         finish
       end
     end
 
     context "on a not started progress" do
       it "does nothing" do
-        expect($stdout).to_not receive(:write)
+        expect($stdout).to_not(receive(:write))
         finish
       end
     end
@@ -147,7 +147,7 @@ RSpec.describe UserIO::Progress do
       end
 
       it "does nothing" do
-        expect($stdout).to_not receive(:write)
+        expect($stdout).to_not(receive(:write))
         finish
       end
     end

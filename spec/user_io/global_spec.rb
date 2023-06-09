@@ -1,4 +1,4 @@
-RSpec.describe Infopark::UserIO::Global do
+RSpec.describe(Infopark::UserIO::Global) do
   class GlobalTest
     include ::Infopark::UserIO::Global
   end
@@ -14,6 +14,6 @@ RSpec.describe Infopark::UserIO::Global do
   end
 
   it "provides convenience access to UserIO.global" do
-    expect(global_included.user_io).to be user_io
+    expect(global_included.user_io).to(be(user_io))
   end
 end

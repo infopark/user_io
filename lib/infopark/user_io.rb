@@ -28,7 +28,7 @@ class UserIO
     end
 
     def increment
-      raise ImplementationError, "progress not started yet" unless @started
+      raise(ImplementationError, "progress not started yet") unless @started
       user_io.tell(".", newline: false)
       reset_spinner
     end
@@ -42,7 +42,7 @@ class UserIO
     end
 
     def spin
-      raise ImplementationError, "progress not started yet" unless @started
+      raise(ImplementationError, "progress not started yet") unless @started
       user_io.tell("#{@spinner[@spin_pos % @spinner.size]}\b", newline: false)
       @spin_pos += 1
     end
@@ -141,7 +141,7 @@ class UserIO
   end
 
   def confirm(*text)
-    ask(*text) or raise Aborted
+    ask(*text) or raise(Aborted)
   end
 
   def new_progress(label)
@@ -180,7 +180,7 @@ class UserIO
   def edit_file(kind_of_data, filename = nil, template: nil)
     wait_for_foreground if background?
 
-    editor = ENV["EDITOR"] or raise MissingEnv, "No EDITOR specified."
+    editor = ENV["EDITOR"] or raise(MissingEnv, "No EDITOR specified.")
 
     filename ||= Tempfile.new("").path
     if template && (!File.exists?(filename) || File.empty?(filename))
@@ -248,7 +248,7 @@ class UserIO
   end
 
   def wait_for_foreground
-    sleep 0.1 while background?
+    sleep(0.1) while background?
   end
 
   def output_prefix
