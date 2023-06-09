@@ -77,6 +77,9 @@ Metrics/PerceivedComplexity:
 
 Naming/HeredocDelimiterNaming:
   Enabled: false
+Naming/MethodParameterName:
+  AllowedNames:
+    - e
 Naming/VariableNumber:
   Enabled: false
 
