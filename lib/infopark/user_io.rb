@@ -1,11 +1,11 @@
 # frozen_string_literal: true
 
 module Infopark
-# TODO extract into infopark base gem
+  # TODO extract into infopark base gem
   class ImplementationError < StandardError; end
 
-# TODO
-# - beep (\a) on #acknowledge, #ask or #confirm (and maybe on #listen, too)
+  # TODO
+  # - beep (\a) on #acknowledge, #ask or #confirm (and maybe on #listen, too)
   class UserIO
     class Aborted < RuntimeError
     end
