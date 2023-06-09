@@ -23,11 +23,7 @@ RSpec.describe(UserIO) do
     subject(:assign_global) { UserIO.global = user_io }
 
     it "assigns the global UserIO" do
-      expect {
-        assign_global
-      }.to(change {
-        UserIO.global
-      }.to(user_io))
+      expect { assign_global }.to(change { UserIO.global }.to(user_io))
     end
   end
 
