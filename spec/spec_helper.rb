@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require_relative "../lib/infopark-user_io"
 
 RSpec.configure do |config|
