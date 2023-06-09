@@ -3,7 +3,7 @@
 require_relative "../user_io"
 
 module Infopark
-  module UserIO
+  class UserIO
     module Global
       def user_io
         Infopark::UserIO.global

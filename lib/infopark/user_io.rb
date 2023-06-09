@@ -76,40 +76,8 @@ module Infopark
       @line_pending = {}
     end
 
-    def tell(*texts, newline: true, **line_options)
-      lines = texts.flatten.map {|text| text.to_s.split("\n", -1) }.flatten
-
-      lines[0...-1].each {|line| tell_line(line, **line_options) }
-      tell_line(lines.last, newline:, **line_options)
-    end
-
-    def tell_pty_stream(stream, **color_options)
-      color_prefix, color_postfix = compute_color(**color_options)
-      write_raw(output_prefix) unless line_pending?
-      write_raw(color_prefix)
-      nl_pending = false
-      uncolored_prefix = "#{color_postfix}#{output_prefix}#{color_prefix}"
-      until stream.eof?
-        chunk = stream.read_nonblock(100)
-        next if chunk.empty?
-
-        write_raw("\n#{uncolored_prefix}") if nl_pending
-        chunk.chop! if (nl_pending = chunk.end_with?("\n"))
-        chunk.gsub!(/([\r\n])/, "\\1#{uncolored_prefix}")
-        write_raw(chunk)
-      end
-      write_raw("\n") if nl_pending
-      write_raw(color_postfix)
-      line_pending!(false)
-    end
-
-    def warn(*text)
-      tell(*text, color: :yellow, bright: true)
-    end
-
-    def tell_error(e, **options)
-      tell(e, **options, color: :red, bright: true)
-      tell(e.backtrace, **options, color: :red) if Exception === e
+    def <<(msg)
+      tell(msg.chomp, newline: msg.end_with?("\n"))
     end
 
     def acknowledge(*text)
@@ -129,7 +97,7 @@ module Infopark
       tell("-" * 80)
       default_answer = default ? "yes" : "no" unless default.nil?
       tell("(yes/no) #{default_answer && "[#{default_answer}] "}> ", newline: false)
-      until %w(yes no).include?(answer = read_line.strip.downcase)
+      until %w(yes no).include?((answer = read_line.strip.downcase))
         if answer.empty?
           answer = default_answer
           break
@@ -140,24 +108,6 @@ module Infopark
       answer == expected
     end
 
-    def listen(prompt = nil, **options)
-      prompt << " " if prompt
-      tell("#{prompt}> ", **options, newline: false)
-      read_line.strip
-    end
-
-    def confirm(*text)
-      ask(*text) or raise(Aborted)
-    end
-
-    def new_progress(label)
-      Progress.new(label, self)
-    end
-
-    def start_progress(label)
-      new_progress(label).tap(&:start)
-    end
-
     def background_other_threads
       return if @foreground_thread
 
@@ -165,22 +115,8 @@ module Infopark
       @foreground_thread = Thread.current
     end
 
-    def foreground
-      return unless @foreground_thread
-
-      @background_data.each(&$stdout.method(:write))
-      @foreground_thread = nil
-      # take over line_pending from background
-      @line_pending[false] = @line_pending[true]
-      @line_pending[true] = false
-    end
-
-    def <<(msg)
-      tell(msg.chomp, newline: msg.end_with?("\n"))
-    end
-
-    def tty?
-      $stdout.tty?
+    def confirm(*text, **options)
+      ask(*text, **options) or raise(Aborted)
     end
 
     def edit_file(kind_of_data, filename = nil, template: nil)
@@ -198,6 +134,26 @@ module Infopark
       system(editor, filename)
 
       File.read(filename)
+    end
+
+    def foreground
+      return unless @foreground_thread
+
+      @background_data.each(&$stdout.method(:write))
+      @foreground_thread = nil
+      # take over line_pending from background
+      @line_pending[false] = @line_pending[true]
+      @line_pending[true] = false
+    end
+
+    def listen(prompt = nil, **options)
+      prompt << " " if prompt
+      tell("#{prompt}> ", **options, newline: false)
+      read_line.strip
+    end
+
+    def new_progress(label)
+      Progress.new(label, self)
     end
 
     def select(description, items, item_describer: :to_s, default: nil)
@@ -247,50 +203,54 @@ module Infopark
       choice
     end
 
+    def start_progress(label)
+      new_progress(label).tap(&:start)
+    end
+
+    def tell(*texts, newline: true, **line_options)
+      lines = texts.flatten.map {|text| text.to_s.split("\n", -1) }.flatten
+
+      lines[0...-1].each {|line| tell_line(line, **line_options) }
+      tell_line(lines.last, newline:, **line_options)
+    end
+
+    def tell_error(e, **options)
+      tell(e, **options, color: :red, bright: true)
+      tell(e.backtrace, **options, color: :red) if Exception === e
+    end
+
+    def tell_pty_stream(stream, **color_options)
+      color_prefix, color_postfix = compute_color(**color_options)
+      write_raw(output_prefix) unless line_pending?
+      write_raw(color_prefix)
+      nl_pending = false
+      uncolored_prefix = "#{color_postfix}#{output_prefix}#{color_prefix}"
+      until stream.eof?
+        chunk = stream.read_nonblock(100)
+        next if chunk.empty?
+
+        write_raw("\n#{uncolored_prefix}") if nl_pending
+        chunk.chop! if (nl_pending = chunk.end_with?("\n"))
+        chunk.gsub!(/([\r\n])/, "\\1#{uncolored_prefix}")
+        write_raw(chunk)
+      end
+      write_raw("\n") if nl_pending
+      write_raw(color_postfix)
+      line_pending!(false)
+    end
+
+    def tty?
+      $stdout.tty?
+    end
+
+    def warn(*texts, **options)
+      tell(*texts, **options, color: :yellow, bright: true)
+    end
+
     private
 
     def background?
       !!@foreground_thread && @foreground_thread != Thread.current
-    end
-
-    def wait_for_foreground
-      sleep(0.1) while background?
-    end
-
-    def output_prefix
-      @output_prefix || @output_prefix_proc&.call
-    end
-
-    def read_line
-      wait_for_foreground if background?
-      @line_pending[false] = false
-      $stdin.gets.chomp
-    end
-
-    def tell_line(line, newline: true, prefix: true, **color_options)
-      line_prefix, line_postfix = compute_color(**color_options)
-      prefix = false if line_pending?
-
-      out_line = "#{output_prefix if prefix}#{line_prefix}#{line}#{line_postfix}#{"\n" if newline}"
-      write_raw(out_line)
-
-      line_pending!(!newline)
-    end
-
-    def write_raw(bytes)
-      if background?
-        @background_data << bytes
-      else
-        $stdout.write(bytes)
-      end
-    end
-
-    def line_pending?
-      @line_pending[background?]
-    end
-
-    def line_pending!(value)
-      @line_pending[background?] = value
     end
 
     def compute_color(**options)
@@ -305,9 +265,37 @@ module Infopark
       "\033[#{parameters.join(';')}#{function}"
     end
 
+    def line_pending?
+      @line_pending[background?]
+    end
+
+    def line_pending!(value)
+      @line_pending[background?] = value
+    end
+
+    def output_prefix
+      @output_prefix || @output_prefix_proc&.call
+    end
+
+    def read_line
+      wait_for_foreground if background?
+      @line_pending[false] = false
+      $stdin.gets.chomp
+    end
+
     # SGR: Select Graphic Rendition … far too long for a function name ;)
     def sgr_sequence(*parameters)
       control_sequence(*parameters, :m)
+    end
+
+    def tell_line(line, newline: true, prefix: true, **color_options)
+      line_prefix, line_postfix = compute_color(**color_options)
+      prefix = false if line_pending?
+
+      out_line = "#{output_prefix if prefix}#{line_prefix}#{line}#{line_postfix}#{"\n" if newline}"
+      write_raw(out_line)
+
+      line_pending!(!newline)
     end
 
     def text_color(color: nil, bright: nil, faint: nil, italic: nil, underline: nil)
@@ -347,6 +335,18 @@ module Infopark
         sequence << 39
       end
       sgr_sequence(*sequence)
+    end
+
+    def wait_for_foreground
+      sleep(0.1) while background?
+    end
+
+    def write_raw(bytes)
+      if background?
+        @background_data << bytes
+      else
+        $stdout.write(bytes)
+      end
     end
   end
 end

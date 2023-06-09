@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require "securerandom"
+
 module Infopark
   RSpec.describe(UserIO) do
     let(:options) { {} }
@@ -146,6 +148,53 @@ module Infopark
       end
     end
 
+    describe "#confirm" do
+      subject(:confirm) { user_io.confirm(*confirm_texts, **confirm_options) }
+
+      before { allow(user_io).to(receive(:ask)).and_return(ask_result) }
+
+      let(:ask_result) { true }
+      let(:confirm_options) do
+        [
+          {expected: "yes"},
+          {default: "foo", expected: "bar"},
+          {},
+        ].sample
+      end
+      let(:confirm_texts) do
+        [
+          %w[foo bar],
+          %w[baz],
+          [],
+        ].sample
+      end
+
+      it "delegates to #ask" do
+        confirm
+        if confirm_texts.empty? && confirm_options.empty?
+          expect(user_io).to(have_received(:ask).with(no_args))
+        else
+          expect(user_io).to(have_received(:ask).with(*confirm_texts, **confirm_options))
+        end
+      end
+
+      context "when #ask returns truthy" do
+        let(:ask_result) { [SecureRandom.hex, 1, true].sample }
+
+        it "returns the result" do
+          expect(confirm).to(be(ask_result))
+        end
+      end
+
+      context "when #ask returns falsey" do
+        let(:ask_result) { [nil, false].sample }
+
+        it "aborts" do
+          expect { confirm }.to(raise_error(UserIO::Aborted))
+        end
+      end
+    end
+
     describe "#select" do
       before { allow($stdin).to(receive(:gets).and_return("1\n")) }
 
@@ -206,7 +255,7 @@ module Infopark
     describe "#tell_pty_stream" do
       let(:color_options) { {} }
       let(:stream) { instance_double(IO) }
-      let(:data) { "test data" }
+      let(:data) { +"test data" }
 
       subject(:tell) { user_io.tell_pty_stream(stream, **color_options) }
 
@@ -221,7 +270,7 @@ module Infopark
       it "tells all data from stream in non blocking chunks" do
         expect(stream).to(receive(:eof?).and_return(false, false, false, true))
         expect(stream).to(receive(:read_nonblock).with(100)
-            .and_return("first\nchunk", "second chunk", "\nlast chunk"))
+            .and_return(+"first\nchunk", +"second chunk", +"\nlast chunk"))
         expect($stdout).to(receive(:write).with("first\nchunk"))
         expect($stdout).to(receive(:write).with("second chunk"))
         expect($stdout).to(receive(:write).with("\nlast chunk"))
@@ -261,7 +310,7 @@ module Infopark
         end
 
         context "when stream contains carriage return" do
-          let(:data) { "some\rdata\rwith\rCRs" }
+          let(:data) { +"some\rdata\rwith\rCRs" }
 
           it "writes the prefix right after the CR" do
             expect($stdout).to(receive(:write).with("[the prefix] ").ordered)
@@ -289,7 +338,7 @@ module Infopark
         end
 
         context "when stream contains newline" do
-          let(:data) { "some\ndata\nwith\nNLs" }
+          let(:data) { +"some\ndata\nwith\nNLs" }
 
           it "writes the prefix right after the NL" do
             expect($stdout).to(receive(:write).with("[the prefix] ").ordered)
@@ -317,7 +366,7 @@ module Infopark
 
           context "when stream ends with newline" do
             # includes an empty chunk to verify, that they don't consume the pending NL
-            let(:data) { ["some\n", "data\n", "with\n", "", "NLs\n", ""] }
+            let(:data) { [+"some\n", +"data\n", +"with\n", +"", +"NLs\n", +""] }
 
             it "does not write prefix after the last newline" do
               expect($stdout).to(receive(:write).with("[the prefix] ").ordered)
@@ -354,7 +403,7 @@ module Infopark
         end
 
         context "when data does not end with newline" do
-          let(:data) { "foo" }
+          let(:data) { +"foo" }
 
           it "writes prefix on next output nevertheless" do
             expect($stdout).to(receive(:write).with("[the prefix] ").ordered)
@@ -388,20 +437,23 @@ module Infopark
       context "when in background" do
         let(:color_options) { {color: :yellow} }
         let(:options) { {output_prefix: "foo"} }
-        let(:data) { ["data\n", "in\nchunks", "", "yo\n", ""] }
+        let(:data) { [+"data\n", +"in\nchunks", +"", +"yo\n", +""] }
 
-        let!(:foreground_thread) do
-          @finished = false
-          Thread.new do
+        before do
+          @fg_in = Thread::Queue.new
+          @fg_out = Thread::Queue.new
+          @fg_thread = Thread.new do
             user_io.background_other_threads
-            sleep(0.1) until @finished
+            @fg_out.push(:other_backgrounded)
+            @fg_in.pop
             user_io.foreground
           end
         end
 
-        after { foreground_thread.kill.join }
+        after { @fg_thread.kill.join }
 
         it "holds back the output until coming back to foreground" do
+          @fg_out.pop(timeout: 1)
           expect($stdout).to_not(receive(:write))
           tell
           RSpec::Mocks.space.proxy_for($stdout).reset
@@ -413,9 +465,36 @@ module Infopark
           expect($stdout).to(receive(:write).with("yo").ordered)
           expect($stdout).to(receive(:write).with("\n").ordered)
           expect($stdout).to(receive(:write).with("\e[22;39m").ordered)
-          @finished = true
-          foreground_thread.join
+          @fg_in.push(:background_done)
+          @fg_thread.join
         end
+      end
+    end
+
+    describe "#warn" do
+      subject(:warn) { user_io.warn(*warn_texts, **warn_options) }
+
+      before { allow(user_io).to(receive(:tell)).and_return(tell_result) }
+
+      let(:tell_result) { [SecureRandom.hex, nil].sample }
+      let(:warn_options) do
+        [
+          {newline: true},
+          {prefix: "foo", newline: false},
+          {},
+        ].sample
+      end
+      let(:warn_texts) do
+        [
+          %w[foo bar],
+          %w[baz],
+          [],
+        ].sample
+      end
+
+      it "delegates to #tell" do
+        warn
+        expect(user_io).to(have_received(:tell).with(*warn_texts, **warn_options, color: :yellow, bright: true))
       end
     end
   end
