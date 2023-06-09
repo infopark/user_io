@@ -206,7 +206,7 @@ module Infopark
     describe "#tell_pty_stream" do
       let(:color_options) { {} }
       let(:stream) { instance_double(IO) }
-      let(:data) { "test data" }
+      let(:data) { +"test data" }
 
       subject(:tell) { user_io.tell_pty_stream(stream, **color_options) }
 
@@ -221,7 +221,7 @@ module Infopark
       it "tells all data from stream in non blocking chunks" do
         expect(stream).to(receive(:eof?).and_return(false, false, false, true))
         expect(stream).to(receive(:read_nonblock).with(100)
-            .and_return("first\nchunk", "second chunk", "\nlast chunk"))
+            .and_return(+"first\nchunk", +"second chunk", +"\nlast chunk"))
         expect($stdout).to(receive(:write).with("first\nchunk"))
         expect($stdout).to(receive(:write).with("second chunk"))
         expect($stdout).to(receive(:write).with("\nlast chunk"))
@@ -261,7 +261,7 @@ module Infopark
         end
 
         context "when stream contains carriage return" do
-          let(:data) { "some\rdata\rwith\rCRs" }
+          let(:data) { +"some\rdata\rwith\rCRs" }
 
           it "writes the prefix right after the CR" do
             expect($stdout).to(receive(:write).with("[the prefix] ").ordered)
@@ -289,7 +289,7 @@ module Infopark
         end
 
         context "when stream contains newline" do
-          let(:data) { "some\ndata\nwith\nNLs" }
+          let(:data) { +"some\ndata\nwith\nNLs" }
 
           it "writes the prefix right after the NL" do
             expect($stdout).to(receive(:write).with("[the prefix] ").ordered)
@@ -317,7 +317,7 @@ module Infopark
 
           context "when stream ends with newline" do
             # includes an empty chunk to verify, that they don't consume the pending NL
-            let(:data) { ["some\n", "data\n", "with\n", "", "NLs\n", ""] }
+            let(:data) { [+"some\n", +"data\n", +"with\n", +"", +"NLs\n", +""] }
 
             it "does not write prefix after the last newline" do
               expect($stdout).to(receive(:write).with("[the prefix] ").ordered)
@@ -354,7 +354,7 @@ module Infopark
         end
 
         context "when data does not end with newline" do
-          let(:data) { "foo" }
+          let(:data) { +"foo" }
 
           it "writes prefix on next output nevertheless" do
             expect($stdout).to(receive(:write).with("[the prefix] ").ordered)
@@ -388,7 +388,7 @@ module Infopark
       context "when in background" do
         let(:color_options) { {color: :yellow} }
         let(:options) { {output_prefix: "foo"} }
-        let(:data) { ["data\n", "in\nchunks", "", "yo\n", ""] }
+        let(:data) { [+"data\n", +"in\nchunks", +"", +"yo\n", +""] }
 
         let!(:foreground_thread) do
           @finished = false
