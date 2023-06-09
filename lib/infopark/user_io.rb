@@ -21,11 +21,11 @@ module Infopark
       end
 
       def start
-        unless @started
-          user_io.tell("#{label} ", newline: false)
-          @started = true
-          reset_spinner
-        end
+        return if @started
+
+        user_io.tell("#{label} ", newline: false)
+        @started = true
+        reset_spinner
       end
 
       def increment
@@ -36,11 +36,11 @@ module Infopark
       end
 
       def finish
-        if @started
-          user_io.tell("… ", newline: false)
-          user_io.tell("OK", color: :green, bright: true)
-          @started = false
-        end
+        return unless @started
+
+        user_io.tell("… ", newline: false)
+        user_io.tell("OK", color: :green, bright: true)
+        @started = false
       end
 
       def spin
@@ -158,20 +158,20 @@ module Infopark
     end
 
     def background_other_threads
-      unless @foreground_thread
-        @background_data = []
-        @foreground_thread = Thread.current
-      end
+      return if @foreground_thread
+
+      @background_data = []
+      @foreground_thread = Thread.current
     end
 
     def foreground
-      if @foreground_thread
-        @background_data.each(&$stdout.method(:write))
-        @foreground_thread = nil
-        # take over line_pending from background
-        @line_pending[false] = @line_pending[true]
-        @line_pending[true] = false
-      end
+      return unless @foreground_thread
+
+      @background_data.each(&$stdout.method(:write))
+      @foreground_thread = nil
+      # take over line_pending from background
+      @line_pending[false] = @line_pending[true]
+      @line_pending[true] = false
     end
 
     def <<(msg)
