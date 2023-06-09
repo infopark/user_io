@@ -48,6 +48,8 @@ Metrics/BlockLength:
   AllowedMethods:
     - retry_on_conflict_error
     - transaction
+  Exclude:
+    - "spec/**"
 Metrics/ClassLength:
   CountAsOne:
     - array
