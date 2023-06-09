@@ -103,8 +103,8 @@ module Infopark
       line_pending!(false)
     end
 
-    def warn(*text)
-      tell(*text, color: :yellow, bright: true)
+    def warn(*texts, **options)
+      tell(*texts, **options, color: :yellow, bright: true)
     end
 
     def tell_error(e, **options)

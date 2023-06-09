@@ -470,5 +470,32 @@ module Infopark
         end
       end
     end
+
+    describe "#warn" do
+      subject(:warn) { user_io.warn(*warn_texts, **warn_options) }
+
+      before { allow(user_io).to(receive(:tell)).and_return(tell_result) }
+
+      let(:tell_result) { [SecureRandom.hex, nil].sample }
+      let(:warn_options) do
+        [
+          {newline: true},
+          {prefix: "foo", newline: false},
+          {},
+        ].sample
+      end
+      let(:warn_texts) do
+        [
+          %w[foo bar],
+          %w[baz],
+          [],
+        ].sample
+      end
+
+      it "delegates to #tell" do
+        warn
+        expect(user_io).to(have_received(:tell).with(*warn_texts, **warn_options, color: :yellow, bright: true))
+      end
+    end
   end
 end
